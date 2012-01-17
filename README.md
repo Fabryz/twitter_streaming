@@ -16,7 +16,7 @@ Installation
 2. Create a file ``stream.sh`` under the root directory of the cloned repository and ``chmod +x stream.sh`` it
 3. Paste this code inside ``stream.sh``:
 ``#!/bin/sh
-curl -d @locations https://stream.twitter.com/1/statuses/filter.json -uYourTwitterUsername:YourPassword``
+curl -d @params/locations https://stream.twitter.com/1/statuses/filter.json -uYourTwitterUsername:YourPassword``
 4. Start the server with ``node node_twitter.js``
 
 Contribution

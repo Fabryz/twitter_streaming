@@ -6,3 +6,13 @@ body {
 a {
   color: #00B7FF;
 }
+
+#tweets {
+	margin: 0 auto;
+	margin-top: 20px;
+	background-color: #FFFFDD;
+	width: 100%;
+	height: 350px;
+	overflow: auto;
+	border: 1px solid #E3E3E3;
+}

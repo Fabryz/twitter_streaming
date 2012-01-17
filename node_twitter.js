@@ -32,7 +32,7 @@ app.configure('production', function(){
 // Routes
 
 app.get('/', function(req, res){
-  res.render('index', { title: 'Twitter Streaming' })
+  res.sendfile('index.html')
 });
 
 app.listen(8080);
@@ -42,7 +42,45 @@ var tail_child = spawn('sh', ['stream.sh'], { 'cwd' : __dirname });
 
 console.log('Spawned child pid: ' + tail_child.pid);
 
-var response = "";
+/*
+* WebSockets
+*/
+
+var	io = require('socket.io').listen(app),
+	response = "",
+	users = [],
+ 	totUsers = 0;
+	
+io.configure(function() { 
+	io.enable('browser client minification');
+	io.set('log level', 1); 
+	io.set('transports', [ 
+			'websocket',
+			'flashsocket',
+			'htmlfile',
+			'xhr-polling',
+			'jsonp-polling'
+	]);
+}); 
+
+io.sockets.on('connection', function(client) {
+	totUsers++;
+	console.log('+ User '+ client.id +' connected, total users: '+ totUsers);
+	client.emit("nick", { nick: client.id });
+	io.sockets.emit("tot", { tot: totUsers });
+
+	client.on('disconnect', function() {
+		totUsers--;
+		console.log('- User '+ client.id +' disconnected, total users: '+ totUsers);
+		io.sockets.emit("tot", { tot: totUsers });
+	});
+});
+
+
+/*
+* CURL
+*/
+
 tail_child.stdout.setEncoding("utf8");
 tail_child.stdout.on('data', function(data) {
 	response += data.toString('utf8');
@@ -59,7 +97,8 @@ tail_child.stdout.on('data', function(data) {
                 var tweet_date = new Date(Date.parse(tweet.created_at)).toLocaleDateString();
                 var tweet_time = new Date(Date.parse(tweet.created_at)).toLocaleTimeString();
 
-				console.log(tweet_date +' '+ tweet_time +' '+ tweet.user.screen_name +': '+tweet.text);
+				io.sockets.emit("tweet", { tweet: tweet });
+				//console.log(tweet_date +' '+ tweet_time +' '+ tweet.user.screen_name +': '+tweet.text);
 				//self.emit('tweet', JSON.parse(json));
 			} catch(e) {
 				console.log("ERRORE:"+e);

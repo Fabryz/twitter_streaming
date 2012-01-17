@@ -21,7 +21,10 @@ tail_child.stdout.on('data', function(data) {
 			try {
 				var tweet = JSON.parse(json);
                 
-				console.log(tweet.created_at +' '+ tweet.user.screen_name +': '+tweet.text);
+                var tweet_date = new Date(Date.parse(tweet.created_at)).toLocaleDateString();
+                var tweet_time = new Date(Date.parse(tweet.created_at)).toLocaleTimeString();
+
+				console.log(tweet_date +' '+ tweet_time +' '+ tweet.user.screen_name +': '+tweet.text);
 				//self.emit('tweet', JSON.parse(json));
 			} catch(e) {
 				console.log("ERRORE:"+e);
@@ -33,7 +36,7 @@ tail_child.stdout.on('data', function(data) {
 });
 
 tail_child.stderr.on('data', function (data) {
-	
+	//console.log('stderr: ' + data);
 });
 
 tail_child.on('exit', function (code) {

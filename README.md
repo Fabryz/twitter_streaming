@@ -25,7 +25,7 @@ Installation
         #!/bin/sh
         curl -d @params/locations_sanfrancisco https://stream.twitter.com/1/statuses/filter.json -uYourTwitterUsername:YourPassword
 
-5. Start the server with ``node node_twitter.js``
+5. Start the server with ``node server.js``
 6. Point your browser to ``YOUR_SERVER_IP:8080``
 
 Contribution

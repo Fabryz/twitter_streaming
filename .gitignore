@@ -1,1 +1,3 @@
 stream.sh
+.gitignore
+node_modules

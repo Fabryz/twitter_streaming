@@ -3,7 +3,7 @@ var util = require('util'),
     
 console.log('* Twitter Streaming app has started.');
     
-var tail_child = spawn('sh', ['stream.sh'], { 'cwd' : '/Applications/MAMP/htdocs/twitter_streaming' });
+var tail_child = spawn('sh', ['stream.sh'], { 'cwd' : __dirname });
 
 console.log('Spawned child pid: ' + tail_child.pid);
 

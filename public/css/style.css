@@ -7,6 +7,10 @@ a {
   color: #00B7FF;
 }
 
+.clearer {
+	clear: both;
+}
+
 #tweets {
 	margin: 0 auto;
 	margin-top: 20px;
@@ -15,4 +19,44 @@ a {
 	height: 350px;
 	overflow: auto;
 	border: 1px solid #E3E3E3;
+}
+
+#tweets ul {
+	list-style-type: none;
+	padding-left: 10px;
+    padding-right: 30px;
+}
+
+#tweets ul li {
+	background-color: #FFF;
+	margin-bottom: 10px;
+	padding: 10px;
+	width: 100%;
+	border: 1px solid #CCC;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+
+#tweets #avatar {
+
+}
+
+#tweets #info {
+	width: 90%;
+	float: right;
+}
+
+#tweets #date {
+	display: block;
+}
+
+#tweets #username {
+	font-weight: bold;
+	display: block;
+}
+
+#tweets #text {
+
 }

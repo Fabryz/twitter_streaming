@@ -46,9 +46,11 @@ $(document).ready(function() {
 	});
 
 	socket.on('tweet', function(data) {	
+		console.dir(data);
+
 		var date = new Date(data.tweet.created_at);
 
-		tweets.append('<li>'+ date.format("{FullYear}/{Month:2}/{Date:2} {Hours:2}:{Minutes:2}:{Seconds:2}") +' '+ data.tweet.user.screen_name +': '+ data.tweet.text +'</li>');
+		tweets.append('<li><img id="avatar" src="'+ data.tweet.user.profile_image_url +'" alt=""><div id="info"><span id="date">'+ date.format("{FullYear}/{Month:2}/{Date:2} {Hours:2}:{Minutes:2}:{Seconds:2}") +'</span><span id="username">'+ data.tweet.user.screen_name +'</span><span id="text">'+ data.tweet.text +'</span></div><div class="clearer"></div></li>');
 		$('#tweets').prop('scrollTop', $('#tweets').prop('scrollHeight'));
 	});
 });

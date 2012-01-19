@@ -2,9 +2,7 @@
  * Module dependencies.
  */
 
-var express = require('express'),
-    util = require('util'),
-	spawn = require('child_process').spawn;
+var express = require('express');
 
 var app = module.exports = express.createServer();
 
@@ -37,18 +35,12 @@ app.get('/', function(req, res){
 
 app.listen(8080);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
-    
-var tail_child = spawn('sh', ['stream.sh'], { 'cwd' : __dirname });
-
-console.log('Spawned child pid: ' + tail_child.pid);
 
 /*
 * WebSockets
 */
 
 var	io = require('socket.io').listen(app),
-	response = "",
-	users = [],
  	totUsers = 0;
 	
 io.configure(function() { 
@@ -67,6 +59,7 @@ io.sockets.on('connection', function(client) {
 	totUsers++;
 	console.log('+ User '+ client.id +' connected, total users: '+ totUsers);
 	client.emit("nick", { nick: client.id });
+	client.emit("keywords", { keywords: keywords });
 	io.sockets.emit("tot", { tot: totUsers });
 
 	client.on('disconnect', function() {
@@ -75,7 +68,6 @@ io.sockets.on('connection', function(client) {
 		io.sockets.emit("tot", { tot: totUsers });
 	});
 });
-
 
 /*
 * Using Twitter Streaming API
@@ -86,15 +78,17 @@ var util = require('util'),
 	query = require('querystring'),
 	Buffer = require('buffer').Buffer;
 
-if (process.argv.length < 4 ) {
+if (process.argv.length < 5 ) {
 	console.log("Incorrect number of parameters.");
-	console.log("Usage: node server.js twitterUsername twitterPassword");
+	console.log("Usage: node server.js <twitterUsername> <twitterPassword> <keywords>");
+	console.log("Keywords must be a list of words separated by commas: jquery,html5,symfony2");
 	process.exit(1);
 }
 
 var user = process.argv[2],
 	password = process.argv[3],
-	postdata = query.stringify({ 'track' : 'jquery,html5,symfony2' });
+	keywords = process.argv[4],
+	postdata = query.stringify({ 'track' : keywords });
 
 var headers = {
 	"User-Agent" : "ts_agent",
@@ -112,6 +106,7 @@ var requestOptions = {
 };
 
 var request = https.request(requestOptions, function(response) {
+
 	response.on('data', function(chunk){
 		//console.log("DATA: %s",chunk.toString('utf8'));
 		var json = chunk.toString('utf8');

@@ -19,14 +19,8 @@ Installation
 
 1. Clone the repository with ``git clone git://github.com/Fabryz/twitter_streaming.git``
 2. Install dependencies with ``npm install``
-3. Create a file ``stream.sh`` under the root directory of the cloned repository and ``chmod +x stream.sh`` it
-4. Paste this code inside ``stream.sh``:
-
-        #!/bin/sh
-        curl -d @params/locations_sanfrancisco https://stream.twitter.com/1/statuses/filter.json -uYourTwitterUsername:YourPassword
-
-5. Start the server with ``node server.js``
-6. Point your browser to ``YOUR_SERVER_IP:8080``
+3. Start the server with ``node server.js twitterUsername twitterPassword <keywords>`` where <keywords> is a list of words separated by commas as: jquery,html5,symfony2
+4. Point your browser to ``YOUR_SERVER_IP:8080``
 
 Contribution
 -------

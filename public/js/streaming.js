@@ -5,9 +5,11 @@ $(document).ready(function() {
 		nick = $("#nick"),
 		online = $("#online"),
 		tot = $("#tot"),
+		keywords = $("#keywords"),
 		tweets = $("#tweets ul");
 		
-	status.html("Connecting.");
+	status.html("Connecting...");
+	keywords.html("Retrieving keywords...");
 
 	Date.prototype.format = function (fmt) {
 		var date = this;
@@ -45,8 +47,12 @@ $(document).ready(function() {
 		tot.html(data.tot);
 	});
 
+	socket.on('keywords', function(data) {	
+		keywords.html(data.keywords);
+	});
+
 	socket.on('tweet', function(data) {	
-		console.dir(data);
+		//console.dir(data);
 
 		var date = new Date(data.tweet.created_at);
 

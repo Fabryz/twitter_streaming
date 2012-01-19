@@ -78,43 +78,63 @@ io.sockets.on('connection', function(client) {
 
 
 /*
-* CURL
+* Using Twitter Streaming API
 */
 
-tail_child.stdout.setEncoding("utf8");
-tail_child.stdout.on('data', function(data) {
-	response += data.toString('utf8');
-	var index, json;
-	while ((index = response.indexOf('\r\n')) > -1) {
-		//console.log("");
-		json = response.slice(0, index);
-		response = response.slice(index + 2);
-        
+var util = require('util'),
+	https = require('https'),
+	query = require('querystring'),
+	Buffer = require('buffer').Buffer;
+
+if (process.argv.length < 4 ) {
+	console.log("Incorrect number of parameters.");
+	console.log("Usage: node server.js twitterUsername twitterPassword");
+	process.exit(1);
+}
+
+var user = process.argv[2],
+	password = process.argv[3],
+	postdata = query.stringify({ 'track' : 'jquery,html5,symfony2' });
+
+var headers = {
+	"User-Agent" : "ts_agent",
+	"Authorization" : "Basic " + new Buffer(user + ":" + password).toString("base64"),
+	"Content-Type" : "application/x-www-form-urlencoded",
+	"Content-Length" : postdata.length
+};
+
+var requestOptions = {
+	host: "stream.twitter.com",
+	port: 443,
+	path: "/1/statuses/filter.json",
+	method: "POST",
+	headers: headers
+};
+
+var request = https.request(requestOptions, function(response) {
+	response.on('data', function(chunk){
+		//console.log("DATA: %s",chunk.toString('utf8'));
+		var json = chunk.toString('utf8');
+
 		if (json.length > 0) {
 			try {
 				var tweet = JSON.parse(json);
-                
-                var tweet_date = new Date(Date.parse(tweet.created_at)).toLocaleDateString();
-                var tweet_time = new Date(Date.parse(tweet.created_at)).toLocaleTimeString();
-
+				//console.log(j.text);
 				io.sockets.emit("tweet", { tweet: tweet });
-				//console.log(tweet_date +' '+ tweet_time +' '+ tweet.user.screen_name +': '+tweet.text);
-				//self.emit('tweet', JSON.parse(json));
 			} catch(e) {
-				console.log("ERRORE:"+e);
-				//self.emit('error', e);
+				console.log("Error: "+ e);
 			}
 		}
-	}
-	//console.dir("**************\n"+json+"************\n");
+	});
+
+	response.on('end', function() {
+		console.log("End.");
+	});
 });
 
-tail_child.stderr.on('data', function (data) {
-	//console.log('stderr: ' + data);
-});
+request.write(postdata);
+request.end();
 
-tail_child.on('exit', function (code) {
-	if (code !== 0) {
-		console.log('process exited with code ' + code);
-	}
+request.on('error', function(e) {
+	console.error(e);
 });

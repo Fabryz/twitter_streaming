@@ -86,12 +86,17 @@ $(document).ready(function() {
 		keywords.html(data.keywords);
 	});
 
+	function convertURLs(str){
+		var regex = /(https?:\/\/([-\w\.]+)+(:\d+)?(\/([\w\/_\.]*(\?\S+)?)?)?)/g;
+		return str.replace(regex, "<a href='$1' title='Open this link in a new tab' target='_blank'>$1</a>")
+	}
+
 	socket.on('tweet', function(data) {	
 		//console.dir(data);
 
 		var date = new Date(data.tweet.created_at);
 
-		tweets.append('<li><img id="avatar" src="'+ data.tweet.user.profile_image_url +'" alt="" width="48" height="48"><div id="info"><span id="date">'+ date.format("{FullYear}/{Month:2}/{Date:2} {Hours:2}:{Minutes:2}:{Seconds:2}") +'</span><span id="username">'+ data.tweet.user.screen_name +'</span><span id="text">'+ data.tweet.text +'</span></div><div class="clearer"></div></li>');
+		tweets.append('<li><img id="avatar" src="'+ data.tweet.user.profile_image_url +'" alt="" width="48" height="48"><div id="info"><span id="date">'+ date.format("{FullYear}/{Month:2}/{Date:2} {Hours:2}:{Minutes:2}:{Seconds:2}") +'</span><span id="username">'+ data.tweet.user.screen_name +'</span><span id="text">'+ convertURLs(data.tweet.text) +'</span></div><div class="clearer"></div></li>');
 		$('#tweets').prop('scrollTop', $('#tweets').prop('scrollHeight'));
 		tweetsAmount++;
 	});

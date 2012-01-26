@@ -6,7 +6,12 @@ $(document).ready(function() {
 		online = $("#online"),
 		tot = $("#tot"),
 		keywords = $("#keywords"),
-		tweets = $("#tweets ul");
+		tweets = $("#tweets ul"),
+		debug = $("#debug"),
+		speed = $("#speed"),
+		maxSpeed = $("#maxSpeed"),
+		tweetsAmount = 0,
+		maxTweetsAmount = 0;
 		
 	status.html("Connecting...");
 	keywords.html("Retrieving keywords...");
@@ -26,7 +31,37 @@ $(document).ready(function() {
 	        }
 		});
 	};
+
+	function toggleDebug(spd) {
+		var speed = spd || 'fast';
 	
+		debug.fadeToggle(speed);
+		debug.toggleClass("active");
+		if (debug.hasClass("active")) {
+
+		} else {
+
+		}
+	}
+
+	$(document).keyup(function(e) {
+		if (e.keyCode === 220) { //backslash
+			toggleDebug();
+		}
+	});
+	
+	setInterval(function() {
+		speed.html(tweetsAmount);
+
+		if (maxTweetsAmount < tweetsAmount) {
+			maxTweetsAmount = tweetsAmount;
+		}
+
+		maxSpeed.html(maxTweetsAmount);
+
+		tweetsAmount = 0;
+	}, 1000);
+
 	/* 
 	* Socket stuff	
 	*/
@@ -58,5 +93,6 @@ $(document).ready(function() {
 
 		tweets.append('<li><img id="avatar" src="'+ data.tweet.user.profile_image_url +'" alt="" width="48" height="48"><div id="info"><span id="date">'+ date.format("{FullYear}/{Month:2}/{Date:2} {Hours:2}:{Minutes:2}:{Seconds:2}") +'</span><span id="username">'+ data.tweet.user.screen_name +'</span><span id="text">'+ data.tweet.text +'</span></div><div class="clearer"></div></li>');
 		$('#tweets').prop('scrollTop', $('#tweets').prop('scrollHeight'));
+		tweetsAmount++;
 	});
 });

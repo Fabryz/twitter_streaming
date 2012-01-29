@@ -2,10 +2,12 @@ $(document).ready(function() {
 	var socket = new io.connect(window.location.href);
 	
 	var status = $("#status"),
-		nick = $("#nick"),
+		clientId = $("#clientId"),
 		online = $("#online"),
 		tot = $("#tot"),
-		keywords = $("#keywords"),
+		filters = $("#filters"),
+		param = $("#param"),
+		value = $("#value"),
 		tweets = $("#tweets ul"),
 		debug = $("#debug"),
 		speed = $("#speed"),
@@ -14,7 +16,6 @@ $(document).ready(function() {
 		maxTweetsAmount = 0;
 		
 	status.html("Connecting...");
-	keywords.html("Retrieving keywords...");
 
 	Date.prototype.format = function (fmt) {
 		var date = this;
@@ -74,16 +75,17 @@ $(document).ready(function() {
 		status.html("Disconnected.");
 	});
 	
-	socket.on('nick', function(data) {
-    	nick.html(data.nick);
+	socket.on('clientId', function(data) {
+    	clientId.html(data.id);
 	});
 	
 	socket.on('tot', function(data) {	
 		tot.html(data.tot);
 	});
 
-	socket.on('keywords', function(data) {	
-		keywords.html(data.keywords);
+	socket.on('filters', function(data) {	
+		param.html(data.param);
+		value.html(data.value);
 	});
 
 	function convertURLs(str){

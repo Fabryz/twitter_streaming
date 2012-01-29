@@ -42,7 +42,8 @@ console.log("Express server listening on port %d in %s mode", app.address().port
 
 var https = require('https'),
 	Buffer = require('buffer').Buffer,
-	fs = require('fs');
+	fs = require('fs'),
+	request;
 
 	//TODO json must be formatted correctly
 	//console.log("Incorrect number of parameters.");
@@ -68,35 +69,38 @@ var requestOptions = {
 		"Content-Length" : postdata.length
 	}
 };
+	
+function grabFeed() {
+	request = https.request(requestOptions, function(response) {
+		console.log("* Stream started.");
 
-var request = https.request(requestOptions, function(response) {
+		response.on('data', function(chunk) {
+			//console.log("DATA: %s",chunk.toString('utf8'));
+			var json = chunk.toString('utf8');
 
-	response.on('data', function(chunk){
-		//console.log("DATA: %s",chunk.toString('utf8'));
-		var json = chunk.toString('utf8');
-
-		if (json.length > 0) {
-			try {
-				var tweet = JSON.parse(json);
-				//console.log(j.text);
-				io.sockets.emit("tweet", { tweet: tweet });
-			} catch(e) {
-				console.log("Error: "+ e);
+			if (json.length > 0) {
+				try {
+					var tweet = JSON.parse(json);
+					//console.log(tweet.text);
+					io.sockets.emit("tweet", { tweet: tweet });
+				} catch(e) {
+					console.log("Error: "+ e);
+				}
 			}
-		}
+		});
+
+		response.on('end', function() {
+			console.log("* Stream ended.");
+		});
 	});
 
-	response.on('end', function() {
-		console.log("End.");
+	request.write(postdata);
+	request.end();
+
+	request.on('error', function(e) {
+		console.log('Request error: '+ e);
 	});
-});
-
-request.write(postdata);
-request.end();
-
-request.on('error', function(e) {
-	console.error(e);
-});
+}
 
 /*
 * WebSockets
@@ -120,6 +124,11 @@ io.configure(function() {
 io.sockets.on('connection', function(client) {
 	totUsers++;
 	console.log('+ User '+ client.id +' connected, total users: '+ totUsers);
+
+	if (totUsers > 0) {
+		grabFeed();
+	}
+
 	client.emit("clientId", { id: client.id });
 	client.emit("filters", { param: configs.param, value: configs.value });
 	io.sockets.emit("tot", { tot: totUsers });
@@ -127,6 +136,11 @@ io.sockets.on('connection', function(client) {
 	client.on('disconnect', function() {
 		totUsers--;
 		console.log('- User '+ client.id +' disconnected, total users: '+ totUsers);
+
+		if (totUsers == 0) {
+			request.abort();
+		}
+
 		io.sockets.emit("tot", { tot: totUsers });
 	});
 });

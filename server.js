@@ -45,17 +45,27 @@ var https = require('https'),
 	fs = require('fs'),
 	request = '';
 
-	//TODO json must be formatted correctly
-	//console.log("Incorrect number of parameters.");
-	//console.log("Usage: node server.js <twitterUsername> <twitterPassword> <keywords>");
-	//console.log("Keywords must be a list of words separated by commas: jquery,html5,symfony2");
+function readConfigs() {
+	var json,
+		configs;
+	
+	try {
+		json = JSON.parse(fs.readFileSync(__dirname +'/configs.json', 'utf8'));
+	} catch(e) {
+		console.log("Error while reading configs.json: "+ e);
+	}
 
-var configs = JSON.parse(fs.readFileSync(__dirname +'/configs.json', 'utf8')),
-	user = configs.user,
-	password = configs.pass,
-	param = configs.param,
-	value = configs.value,
-	postdata = param +'='+ value;
+	configs = {
+		user : json.user,
+		password : json.pass,
+		param : json.param,
+		value : json.value
+	};
+	return configs;
+}
+
+var configs = readConfigs(),
+	postdata = configs.param +'='+ configs.value;
 
 var requestOptions = {
 	host: "stream.twitter.com",
@@ -64,7 +74,7 @@ var requestOptions = {
 	method: "POST",
 	headers: {
 		"User-Agent" : "ts_agent",
-		"Authorization" : "Basic " + new Buffer(user + ":" + password).toString("base64"),
+		"Authorization" : "Basic " + new Buffer(configs.user + ":" + configs.password).toString("base64"),
 		"Content-Type" : "application/x-www-form-urlencoded",
 		"Content-Length" : postdata.length
 	}

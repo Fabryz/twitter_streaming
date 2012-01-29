@@ -43,7 +43,7 @@ console.log("Express server listening on port %d in %s mode", app.address().port
 var https = require('https'),
 	Buffer = require('buffer').Buffer,
 	fs = require('fs'),
-	request;
+	request = '';
 
 	//TODO json must be formatted correctly
 	//console.log("Incorrect number of parameters.");
@@ -125,7 +125,7 @@ io.sockets.on('connection', function(client) {
 	totUsers++;
 	console.log('+ User '+ client.id +' connected, total users: '+ totUsers);
 
-	if (totUsers > 0) {
+	if ((totUsers > 0) && (request == '')) {
 		grabFeed();
 	}
 
@@ -139,6 +139,7 @@ io.sockets.on('connection', function(client) {
 
 		if (totUsers == 0) {
 			request.abort();
+			request = '';
 		}
 
 		io.sockets.emit("tot", { tot: totUsers });

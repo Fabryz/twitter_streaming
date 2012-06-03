@@ -2,15 +2,12 @@
  * Module dependencies.
  */
 
-var express = require('express');
-
-var app = module.exports = express.createServer();
+var express = require('express'),
+	app = module.exports = express.createServer();
 
 // Configuration
 
 app.configure(function(){
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'jade');
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(app.router);
@@ -34,7 +31,7 @@ app.get('/', function(req, res){
 });
 
 app.listen(8080);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+console.log("Express server listening in %s mode", app.settings.env);
 
 /*
 * Using Twitter Streaming API
@@ -79,20 +76,22 @@ var requestOptions = {
 		"Content-Length" : postdata.length
 	}
 };
+
+function strencode( data ) {
+  return unescape( encodeURIComponent( JSON.stringify( data ) ) );
+}
 	
 function grabFeed() {
 	request = https.request(requestOptions, function(response) {
 		console.log("* Stream started.");
 
 		response.on('data', function(chunk) {
-			//console.log("DATA: %s",chunk.toString('utf8'));
 			var json = chunk.toString('utf8');
 
 			if (json.length > 0) {
 				try {
 					var tweet = JSON.parse(json);
-					//console.log(tweet.text);
-					io.sockets.emit("tweet", { tweet: tweet });
+					io.sockets.emit("tweet", strencode(tweet) );
 				} catch(e) {
 					console.log("Error: "+ e);
 				}

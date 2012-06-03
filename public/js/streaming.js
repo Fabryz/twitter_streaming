@@ -1,21 +1,25 @@
 $(document).ready(function() {
-	var socket = new io.connect(window.location.href);
-	
-	var status = $("#status"),
-		clientId = $("#clientId"),
-		online = $("#online"),
-		tot = $("#tot"),
-		filters = $("#filters"),
-		param = $("#param"),
-		value = $("#value"),
-		tweets = $("#tweets ul"),
-		debug = $("#debug"),
-		speed = $("#speed"),
-		maxSpeed = $("#maxSpeed"),
-		tweetsAmount = 0,
-		maxTweetsAmount = 0;
-		
-	status.html("Connecting...");
+	var Debug = {
+
+		log: function (msg) {
+			console.log(new Date().toJSON() +": "+ msg);
+		},
+
+		toggle: function(speed) {
+			speed = speed || 'fast';
+			defaultDebug.slideToggle(speed);
+		}
+	};
+
+	function init() {
+		Debug.log("Connecting...");
+
+		$(document).keyup(function(e) {
+			if (e.keyCode === 220) { //backslash
+				Debug.toggle();
+			}
+		});
+	}
 
 	Date.prototype.format = function (fmt) {
 		var date = this;
@@ -33,59 +37,56 @@ $(document).ready(function() {
 		});
 	};
 
-	function toggleDebug(spd) {
-		var speed = spd || 'fast';
-	
-		debug.fadeToggle(speed);
-		debug.toggleClass("active");
-		if (debug.hasClass("active")) {
+	function calcMaxPerSecond() {
+		maxPerSecondInterval = setInterval(function() {
+			speed.html(tweetsAmount);
 
-		} else {
+			if (maxTweetsAmount < tweetsAmount) {
+				maxTweetsAmount = tweetsAmount;
+			}
 
-		}
+			maxSpeed.html(maxTweetsAmount);
+
+			tweetsAmount = 0;
+		}, 1000);
 	}
 
-	$(document).keyup(function(e) {
-		if (e.keyCode === 220) { //backslash
-			toggleDebug();
-		}
-	});
+	/*
+	* Main
+	*/
+
+	var socket = new io.connect(window.location.href);
 	
-	setInterval(function() {
-		speed.html(tweetsAmount);
-
-		if (maxTweetsAmount < tweetsAmount) {
-			maxTweetsAmount = tweetsAmount;
-		}
-
-		maxSpeed.html(maxTweetsAmount);
-
-		tweetsAmount = 0;
-	}, 1000);
+	var tweets = $("#tweets ul"),
+		defaultDebug = $("#stats"),
+		speed = $("#speed"),
+		maxSpeed = $("#maxSpeed"),
+		maxPerSecondInterval = null,
+		tweetsAmount = 0,
+		maxTweetsAmount = 0;
+		
+	init();
+	calcMaxPerSecond();
 
 	/* 
 	* Socket stuff	
 	*/
 	    
     socket.on('connect', function() {
-    	status.html("Connected.");
+		Debug.log("Connected.");
 	});
 			
 	socket.on('disconnect', function() {
-		status.html("Disconnected.");
+		Debug.log("Disconnected.");
+		clearInterval(maxPerSecondInterval);
 	});
-	
-	socket.on('clientId', function(data) {
-    	clientId.html(data.id);
-	});
-	
+		
 	socket.on('tot', function(data) {	
-		tot.html(data.tot);
+		Debug.log("Current players number: "+ data.tot);
 	});
 
 	socket.on('filters', function(data) {	
-		param.html(data.param);
-		value.html(data.value);
+		Debug.log("Parameter: "+ data.param +", value: "+ data.value);
 	});
 
 	function convertURLs(str){
@@ -93,13 +94,17 @@ $(document).ready(function() {
 		return str.replace(regex, "<a href='$1' title='Open this link in a new tab' target='_blank'>$1</a>")
 	}
 
-	socket.on('tweet', function(data) {	
-		//console.dir(data);
+	function strdecode( data ) {
+		return JSON.parse( decodeURIComponent( escape ( data ) ) );
+	}
 
-		var date = new Date(data.tweet.created_at);
+	socket.on('tweet', function(tweet) {	
+		//console.dir(tweet);
+		tweet = strdecode(tweet);
 
-		tweets.append('<li><a href="http://twitter.com/'+ data.tweet.user.screen_name +'" title="Visit '+ data.tweet.user.screen_name +'\'s profile" target="_blank"><img id="avatar" src="'+ data.tweet.user.profile_image_url +'" alt="" width="48" height="48" /></a><div id="info"><span id="date">'+ date.format("{FullYear}/{Month:2}/{Date:2} {Hours:2}:{Minutes:2}:{Seconds:2}") +'</span><span id="username">'+ data.tweet.user.screen_name +'</span><span id="text">'+ convertURLs(data.tweet.text) +'</span></div><div class="clearer"></div></li>');
-		$('#tweets').prop('scrollTop', $('#tweets').prop('scrollHeight'));
+		var date = new Date(tweet.created_at);
+		tweets.prepend('<li><a href="http://twitter.com/'+ tweet.user.screen_name +'" title="Visit '+ tweet.user.screen_name +'\'s profile" target="_blank"><img id="avatar" src="'+ tweet.user.profile_image_url +'" alt="" width="48" height="48" /></a><div id="info"><span id="date">'+ date.format("{FullYear}/{Month:2}/{Date:2} {Hours:2}:{Minutes:2}:{Seconds:2}") +'</span><span id="username">'+ tweet.user.screen_name +'</span><span id="text">'+ convertURLs(tweet.text) +'</span></div><div class="clearer"></div></li>');
+		// $('#tweets').prop('scrollTop', $('#tweets').prop('scrollHeight'));
 		tweetsAmount++;
 	});
 });

@@ -1,7 +1,9 @@
 Twitter Streaming
-======
+=================
 
 Experimenting [Twitter Streaming API](https://dev.twitter.com/docs/streaming-api/methods) with Node.js, Express.js, Socket.io
+
+Demo: [http://twitter-streaming.nodejitsu.com/](http://twitter-streaming.nodejitsu.com/)
 
 Requirements
 ------------
@@ -15,7 +17,7 @@ Modules:
 * [Express](http://expressjs.com/)
 
 Installation
-----------
+------------
 
 1. Clone the repository with ``git clone git://github.com/Fabryz/twitter_streaming.git``
 2. Install dependencies with ``npm install``
@@ -30,14 +32,14 @@ An example of the default configuration file to search for #html5, #nodejs, #jqu
 		}
 
 4. Start the server with ``node server.js``
-5. Point your browser to ``YOUR_SERVER_IP:8080``
+5. Point your desktop/mobile browser to ``YOUR_SERVER_IP:8080``
 6. Stare at the screen, use "\" to toggle the stats panel
 
-Contribution
--------
+Contributors
+------------
 
-* [Roberto Butti](https://github.com/roberto-butti)
 * [Fabrizio Codello](https://github.com/Fabryz)
+* [Roberto Butti](https://github.com/roberto-butti)
 
 License
 -------

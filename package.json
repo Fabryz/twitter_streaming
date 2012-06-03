@@ -1,10 +1,13 @@
 {
-    "name": "twitter-streaming"
-  , "version": "0.1.2"
-  , "private": true
-  , "dependencies": {
-      "express": "2.5.6",
-	  "jade": ">= 0.0.1",
-	  "socket.io": "0.8.7"
+  "name": "twitter-streaming",
+  "version": "0.1.3",
+  "private": true,
+  "engines": {
+    "node": "0.6.x"
+  },
+  "dependencies": {
+    "express": "2.5.x",
+    "jade": "0.26.x",
+    "socket.io": "0.9.x"
   }
-}		
+}
